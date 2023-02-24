@@ -49,6 +49,26 @@ _Note: separator is comma (,)_
 
 ```
 date,status,elapsed,size,md5,ip,url,error
-2023/02/24 03:39:43,200,219778,56944,1fcac5ad4c19abdb45b19ecf06ccef59,142.250.74.228,https://www.google.com/,OK
-2023/02/24 03:39:43,200,218240,15564,7bddff4bece9ff5879b5574fb999d573,145.40.68.75,https://www.kernel.org/,OK
+2023/02/24 21:39:43,200,219778,56944,1fcac5ad4c19abdb45b19ecf06ccef59,142.250.74.228,https://www.google.com/,OK
+2023/02/24 21:39:43,200,218240,15564,7bddff4bece9ff5879b5574fb999d573,145.40.68.75,https://www.kernel.org/,OK
+2023/02/24 21:49:43,200,219778,56944,1fcac5ad4c19abdb45b19ecf06ccef59,142.250.74.228,https://www.google.com/,OK
+2023/02/24 21:49:43,200,218240,15564,7bddff4bece9ff5879b5574fb999d573,145.40.68.75,https://www.kernel.org/,OK
+2023/02/24 21:59:43,200,219778,56944,1fcac5ad4c19abdb45b19ecf06ccef59,142.250.74.228,https://www.google.com/,OK
+2023/02/24 21:59:43,200,218240,15564,7bddff4bece9ff5879b5574fb999d573,145.40.68.75,https://www.kernel.org/,OK
 ```
+
+## Rules
+
+Reason | Color | Result/description
+------ | ----- | -----------------
+HTTP code = 2xx | Green | OK
+HTTP code = 3xx | Yellow | Redirection
+HTTP code = 4xx | Red | Resource access problem 
+HTTP code = 5xx | Red | Internal server
+time_elapsed > time_response_max | Red | Page takes time to load
+time_response_max/2 < time_elapsed < time_response_max | Yellow | Average time for page to load
+time_elapsed < time_response_max/2 | Green | Page does not take time to load
+md5 changed | Red | URL changed color from white to red
+size > BIG_HTML_FILE_SIZE | Red | Size of HTML page is bigger than reference
+
+
