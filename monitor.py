@@ -12,29 +12,39 @@ from colorama import Fore as c
 from os import getcwd,chdir
 packages.urllib3.disable_warnings()
 
-# Timing ##########################################################################################
+# Default settings ################################################################################
 
-TIME_SLEEP=900
-COUNT_MAX=1000000
-WEB_TIMEOUT=45
-TIME_RESPONSE_MAX=1500000
+TIME_SLEEP         = 900          # 900s = 15min
+COUNT_MAX          = 1000000      # 1M request in total
+WEB_TIMEOUT        = 45           # 45s
+TIME_RESPONSE_MAX  = 3000000      # 3s
+BIG_HTML_FILE_SIZE = 400000       # 400k
+DEFAULT_URL_LST    = "urls.lst" 
+DEFAULT_OUT_CSV    = "report.csv"
+
+# Globals #########################################################################################
+
 MD5_HISTORY = {}
+APP = argv[0].split('/')[-1]
 
 # Functionz #######################################################################################
 
 def usage(errcode=0):
-  print("\nUsage: %s [-T timing] [-c count_max] [-t timeout] [-o report.csv] [-f urls.lst] [-H]\n" % argv[0].split('/')[-1])
-  print("Defaults:")
-  print(" -T 900 = timing 900 seconds")
-  print(" -c 1000000 = at least a whole day")
-  print(" -t 45 = 45 timeout per request")
-  print(" -o report.csv = default output file is report.csv")
-  print(" -f urls.lst = default input file is report.csv")
-  print(" -H          = save (or not) history in html files under folder history of current dir")
-  print("\nExemples:")
-  print("%s")
-  print("%s -f urls.lst")
-  print("%s -f urls.lst -t 45 -o url_stats.csv -f url_file-list.txt -c 100 -T 60")
+  global APP
+  c_blue,c_gray,c_reset = c.BLUE,c.BLACK,c.RESET
+  print("\nUsage:\n------\n %s [-T timing] [-c count_max] [-t timeout] [-o report.csv] [-f urls.lst] [-H]\n" % APP)
+  print("Defaults:\n---------")
+  print(f" -T {c_blue}{TIME_SLEEP}{c_reset}        = timing 900 seconds between loops")
+  print(f" -c {c_blue}{COUNT_MAX}{c_reset}    = at least a whole day")
+  print(f" -t {c_blue}{WEB_TIMEOUT}{c_reset}         = 45 timeout per website request")
+  print(f" -o {c_blue}{DEFAULT_OUT_CSV}{c_reset} = default output file is report.csv")
+  print(f" -f {c_blue}{DEFAULT_URL_LST}{c_reset}   = default input file is report.csv")
+  print(" -H            = save (or not) history in html files under folder history of current dir")
+  print("\nExemples:\n---------")
+  print(f" %s {c_gray}# with no args{c_reset}" % APP )
+  print(" %s -f urls.lst" % APP)
+  print(" %s -f urls.lst -t 45 -o url_stats.csv -f url_file-list.txt -c 100 -T 60" % APP)
+  print(f" for {c_blue}site{c_reset} in github microsoft ; do %s -f {c_blue}$site{c_reset}.lst -t 45 -o stats-{c_blue}$site{c_reset}.csv ; done" % APP)
   exit(errcode)
 
 def get_date(fmt=""):
@@ -70,6 +80,7 @@ def display(r,url,what="",time_response_max=""):
   color_date    = c.BLUE
   color_reset   = c.RESET
   color_url     = c.WHITE
+  color_size    = c.WHITE
   time_response_max = int(time_response_max)
   if what == "head":
     system("clear")
@@ -90,11 +101,13 @@ def display(r,url,what="",time_response_max=""):
       color_elapsed = c.RED
     if time_response_max/4 < int(r['elapsed']) < time_response_max/2:
       color_elapsed = c.GREEN
+    if int(r['size']) > BIG_HTML_FILE_SIZE:
+      color_size = c.RED
     if url in MD5_HISTORY:
       if len(MD5_HISTORY[url]) != 1:
         color_url = c.RED
 
-    print(f"{color_date}%-20s{color_reset} | {color_status}%-15s{color_reset} | {color_elapsed}%-15s{color_reset} | {color_elapsed}%-6s{color_reset} | %-32s | {color_url}%s{color_reset}" % (get_date() , r['status'] , r['elapsed'] , r['size'] , r['md5'], url))
+    print(f"{color_date}%-20s{color_reset} | {color_status}%-15s{color_reset} | {color_elapsed}%-15s{color_reset} | {color_size}%-6s{color_reset} | %-32s | {color_url}%s{color_reset}" % (get_date() , r['status'] , r['elapsed'] , r['size'] , r['md5'], url))
 
 def csv_write(results,outfile,what=""):
   if what == "head":
@@ -176,7 +189,7 @@ headers = {
 ### Args ##########################################################################################
 
 timing,count_max,socket_timeout,time_response_max = TIME_SLEEP,COUNT_MAX,WEB_TIMEOUT,TIME_RESPONSE_MAX
-url_list,csv_report = "urls.lst","report.csv"
+urls_file,csv_report = DEFAULT_URL_LST,DEFAULT_OUT_CSV
 save_history = False
 
 i = 0
@@ -203,7 +216,6 @@ while i < len(argv[1:]):
   elif argv[i] == '-H':
     save_history = True
   else:
-    print(argv[i])
     usage()
 
 ### Monitoring ####################################################################################
