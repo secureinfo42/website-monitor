@@ -28,7 +28,7 @@ Exemples:
 
 ## Result
 
-_Note : some website have token/javascript content generated, so md5 could change._
+_Note: some website have token/javascript content generated, so md5 could change._
 _For exemple protections include token to block bruteforce login._
 
 ```
@@ -43,3 +43,12 @@ date                 | status          | elapsed         | size   | md5         
 
 In folder history, files' name are like : "https___www.domain.com__day_month_year\@hour-minutes-seconds.html"
 
+## CSV report
+
+_Note: separator is comma (,)_
+
+```
+date,status,elapsed,size,md5,ip,url,error
+2023/02/24 03:39:43,200,219778,56944,1fcac5ad4c19abdb45b19ecf06ccef59,142.250.74.228,https://www.google.com/,OK
+2023/02/24 03:39:43,200,218240,15564,7bddff4bece9ff5879b5574fb999d573,145.40.68.75,https://www.kernel.org/,OK
+```
