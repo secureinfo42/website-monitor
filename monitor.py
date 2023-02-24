@@ -73,7 +73,7 @@ def load_urls(infile):
   except:
     perror(f"unable to read file '{infile}'",2)
 
-def display(r,url,what="",time_response_max=""):
+def display(r,url,what="",time_response_max="",big_html_file_size=30*1024**2):
   global MD5_HISTORY
   color_status  = ""
   color_elapsed = c.CYAN
@@ -98,10 +98,10 @@ def display(r,url,what="",time_response_max=""):
     if int(r['elapsed']) > time_response_max:
       color_elapsed = c.RED
     if time_response_max/2 < int(r['elapsed']) < time_response_max:
-      color_elapsed = c.RED
-    if time_response_max/4 < int(r['elapsed']) < time_response_max/2:
+      color_elapsed = c.YELLOW
+    if int(r['elapsed']) < time_response_max/2:
       color_elapsed = c.GREEN
-    if int(r['size']) > BIG_HTML_FILE_SIZE:
+    if int(r['size']) > big_html_file_size:
       color_size = c.RED
     if url in MD5_HISTORY:
       if len(MD5_HISTORY[url]) != 1:
@@ -189,6 +189,7 @@ headers = {
 ### Args ##########################################################################################
 
 timing,count_max,socket_timeout,time_response_max = TIME_SLEEP,COUNT_MAX,WEB_TIMEOUT,TIME_RESPONSE_MAX
+big_html_file_size = BIG_HTML_FILE_SIZE
 urls_file,csv_report = DEFAULT_URL_LST,DEFAULT_OUT_CSV
 save_history = False
 
@@ -213,6 +214,9 @@ while i < len(argv[1:]):
   elif argv[i] == "-a":
     time_response_max = argv[i+1]
     i = i + 1
+  elif argv[i] == "-b":
+    big_html_file_size = argv[i+1]
+    i = i + 1
   elif argv[i] == '-H':
     save_history = True
   else:
@@ -233,7 +237,7 @@ while count < COUNT_MAX:
   try:
     for url in url_list:
       r = check_availability(url,headers,save_history)
-      display(r,url,"data",time_response_max)
+      display(r,url,"data",time_response_max,big_html_file_size)
       csv_write(r,csv_report)
     sleep(int(timing))
   except KeyboardInterrupt:
